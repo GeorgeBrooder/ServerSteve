@@ -1,0 +1,18 @@
+{
+  "name": "minecraft-wol-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "discord.js": "^14.19.3",
+    "rcon-client": "^4.2.5",
+    "wakeonlan": "^0.1.0"
+  }
+}
