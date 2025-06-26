@@ -1,4 +1,26 @@
+require('dotenv').config();
 const { Client, Intents } = require('discord.js');
+
+const client = new Client({
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+  ],
+});
+
+client.once('ready', () => {
+  console.log(`✅ Logged in as ${client.user.tag}`);
+});
+
+client.on('messageCreate', (message) => {
+  if (message.author.bot) return;
+
+  if (message.content.toLowerCase() === '!ping') {
+    message.reply('🏓 Pong!');
+  }
+});
+
+client.login(process.env.DISCORD_TOKEN);
 const { Rcon } = require('rcon-client');
 const wol = require('wakeonlan');
 const http = require('http');
@@ -15,16 +37,6 @@ const WOL_PORT = 9;
 const BOT_TOKEN = process.env.DISCORD_TOKEN;
 
 let cooldown = false;
-
-
-// --- Discord Client ---
-
-const client = new Client({
-  intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-  ],
-});
 
 
 client.once('ready', () => {
