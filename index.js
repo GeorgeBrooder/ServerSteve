@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, Intents } = require('discord.js');
 const { Rcon } = require('rcon-client');
 const wol = require('wakeonlan');
 const http = require('http');
@@ -18,13 +18,14 @@ let cooldown = false;
 
 
 // --- Discord Client ---
+
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
   ],
 });
+
 
 client.once('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
