@@ -2,12 +2,13 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const { Rcon } = require('rcon-client');
 const wol = require('wakeonlan');
 const http = require('http');
+require('dotenv').config();
 const net = require('net');
 
 // --- Configuration ---
-const RCON_HOST = '135.108.9.73'; // Replace with your public IP or DuckDNS
+const RCON_HOST = process.env.RCON_HOST;
 const RCON_PORT = 25575;
-const RCON_PASSWORD = '436743';
+const RCON_PASSWORD = process.env.RCON_PASSWORD;
 const MAC_ADDRESS = '4c:cc:6a:fc:83:b0';
 const BROADCAST_IP = '192.168.7.255';
 const WOL_PORT = 9;

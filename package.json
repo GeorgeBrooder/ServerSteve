@@ -11,7 +11,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "discord.js": "^14.19.3",
+    "discord.js": "^13.17.1",
+    "dotenv": "^16.5.0",
     "rcon-client": "^4.2.5",
     "wakeonlan": "^0.1.0"
   }
