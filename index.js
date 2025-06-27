@@ -29,8 +29,28 @@ const RCON_PORT = 25575;
 const RCON_PASSWORD = process.env.RCON_PASSWORD;
 const MAC_ADDRESS = '4c:cc:6a:fc:83:b0';
 const BROADCAST_IP = '192.168.7.255';
+const JOSUE_ID = "737173833257189447";
 const WOL_PORT = 9;
 const BOT_TOKEN = process.env.DISCORD_TOKEN;
+
+
+const express = require('express');
+const app = express();
+app.use(express.json());
+const PORT = 6789; // You can use any unused port you want
+
+// Ping this endpoint from your Ubuntu server to send a Discord message!
+app.post('/mc-hibernate', async (req, res) => {
+  const channel = client.channels.cache.find(c => c.name === '738523333611618364');
+  if (!channel) return res.status(404).send('Channel not found');
+  const text = req.body.text || "Nobody is on the server, Im putting her tf to bed. Use !startserver to wake it up again.";
+  await channel.send(text);
+  res.sendStatus(200);
+});
+
+app.listen(PORT, () => {
+  console.log(`HTTP endpoint for hibernate alerts listening on ${PORT}`);
+});
 
 let cooldown = false;
 
@@ -51,13 +71,14 @@ client.on('messageCreate', async (message) => {
 
   if (content === '!help') {
     return message.reply(`📖 **Available Commands:**
-• !startserver – Wake up the Minecraft server
-• !status – Check if the server is online
-• !whitelist add <user>
-• !whitelist remove <user>
-• !whitelist list
-• !rcon <command>
-• !restartserver`);
+\`\`\`
+!startserver            Wakes up the Minecraft server via WOL
+!status                 Checks if the server is online
+!test                   Tests if bot is working
+!whitelist add <user>   Add a user to the whitelist
+!whitelist list         List all whitelisted users
+\`\`\`
+`);
   }
 
   // --- RCON command ---
@@ -82,20 +103,25 @@ client.on('messageCreate', async (message) => {
   }
 
   // --- !status ---
-  if (content === '!status') {
-    const socket = new net.Socket();
-    socket.setTimeout(2000);
+if (content === '!status') {
+  const host = RCON_HOST;
+  const port = 25565;
+  const socket = new net.Socket();
+  socket.setTimeout(2000);
 
-    socket.on('connect', () => {
-      message.channel.send('🥶 Server is ONLINE and reachable.');
-      socket.destroy();
-    }).on('timeout', () => {
-      message.channel.send('😬 It timed out, dont know if its up ngl. ');
-      socket.destroy();
-    }).on('error', () => {
-      message.channel.send('🥵 Server appears to be OFFLINE.');
-    }).connect(25565, RCON_HOST);
-  }
+  socket.on('connect', () => {
+    message.channel.send('🥶 Server is ONLINE and reachable.');
+    socket.destroy();
+  }).on('timeout', () => {
+    message.channel.send('😬 It timed out, dont know if its up ngl. ');
+    socket.destroy();
+  }).on('error', (err) => {
+    message.channel.send('🥵 Server appears to be OFFLINE.');
+    console.error(`[STATUS] Connection error:`, err);
+  }).connect(port, host);
+
+  console.log(`[STATUS] Checking ${host}:${port}`);
+}
 
   // --- !whitelist list ---
   if (content === '!whitelist list') {
@@ -112,6 +138,9 @@ client.on('messageCreate', async (message) => {
 
   // --- !whitelist add <name> ---
   if (content.startsWith('!whitelist add')) {
+        if (!message.member.roles.cache.some(role => ['Web Wresteler'].includes(role.name))) {
+      return message.reply('Fuck off, you don’t have permission to do that.');
+    }
     const args = message.content.split(' ');
     const username = args[2];
     if (!username) return message.reply('❌ Please provide a username. Example: `!whitelist add josue`');
@@ -169,16 +198,26 @@ client.on('messageCreate', async (message) => {
 
     wol(MAC_ADDRESS, { address: BROADCAST_IP, port: WOL_PORT })
       .then(() => {
-        const responses = [
-          { text: " ✅ WOL signal sent! The server should be waking up. Checking for server response.", weight: 5 },
-          { text: " ✅ Attempting to boot the server up! Checking for server response.", weight: 5 },
-          { text: " ✅ Server should be up soon. Checking for server response.", weight: 5 },
-          { text: " Type shit! Attempting to boot server now.", weight: 3 },
-          { text: " 🌚 THANK YOUU I LOVE BOOTING SERVERS! THATS MY ONE PURPOSE IN LIFE!!! NOTHING MAKES ME HAPPIER THAN TO CHECK FOR A SERVER RESPONSE!!!!", weight: 2 },
-          { text: " Hold on lemme boot that shit up!!", weight: 3 },
-          { text: " 🫃", weight: 1 },
-          { text: " Shut up dickhead.", weight: 1 }
-        ];
+        let responses;
+    if (message.author.id === JOSUE_ID) {
+      responses = [
+        { text: "Anything for you oh might grandmaster Josue the great!", weight: 4 },
+        { text: "You again? Always on some bullshit, stfu im starting it.", weight: 3 },
+        { text: "BAAAH IM FUCKING TWEAKING, PLEASE KILL ME PLEEEASE", weight: 2 },
+        { text: "Im gonna beat the shit out of dot. Your dog dot. Im gonna beat her to fucking pulp Josue", weight: 1 }
+      ];
+    } else {
+      responses = [
+        { text: " ✅ WOL signal sent! The server should be waking up. Checking for server response.", weight: 5 },
+        { text: " ✅ Attempting to boot the server up! Checking for server response.", weight: 5 },
+        { text: " ✅ Server should be up soon. Checking for server response.", weight: 5 },
+        { text: " Type shit! Attempting to boot server now.", weight: 3 },
+        { text: " 🌚 THANK YOUU I LOVE BOOTING SERVERS! THAT'S MY ONE PURPOSE IN LIFE!!!", weight: 2 },
+        { text: " Hold on lemme boot that shit up!!", weight: 3 },
+        { text: " 🫃", weight: 1 },
+        { text: " Shut up dickhead.", weight: 1 }
+      ];
+    }
         const weightedPool = responses.flatMap(r => Array(r.weight).fill(r.text));
         const randomReply = weightedPool[Math.floor(Math.random() * weightedPool.length)];
 
@@ -204,7 +243,7 @@ client.on('messageCreate', async (message) => {
           elapsedTime++;
           if (elapsedTime >= maxTime) {
             clearInterval(interval);
-            message.channel.send('🥵😢 Server did not come online within 1 minute, try again or tell George.');
+            message.channel.send('🥵😢 Server did not come online within 1 minute, try again or something idk');
           }
         }, 1000);
       })
