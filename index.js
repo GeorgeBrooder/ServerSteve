@@ -17,6 +17,7 @@ client.on('messageCreate', (message) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+const { exec } = require("child_process");
 const { Rcon } = require('rcon-client');
 const wol = require('wakeonlan');
 const http = require('http');
@@ -80,6 +81,32 @@ client.on('messageCreate', async (message) => {
 \`\`\`
 `);
   }
+
+//Reboot command
+client.on("messageCreate", async message => {
+  // Match the command
+  if (message.content.trim() === "!reboot") {
+    // Optional: check roles
+    const hasRole = message.member?.roles.cache.some(role =>
+      ["Owner", "Web Wrestler"].includes(role.name)
+    );
+    if (!hasRole) return message.reply("?? You don't have permission to do that.");
+
+    // Let user know it's starting
+    await message.reply("?? Rebooting the server now. Hold your f***ing horses...");
+
+    // Run the SSH command
+    exec("ssh serveradmin@yourserver.duckdns.org 'sudo /home/serveradmin/reboot-wrapper.sh'", (err, stdout, stderr) => {
+      if (err) {
+        console.error("Reboot failed:", stderr);
+        message.reply(`? Reboot failed: ${stderr || err.message}`);
+      } else {
+        message.reply("?? Server is rebooting. Try again in a minute.");
+      }
+    });
+  }
+});
+
 
   // --- RCON command ---
   if (content.startsWith('!rcon')) {
