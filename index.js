@@ -34,6 +34,11 @@ const JOSUE_ID = "737173833257189447";
 const WOL_PORT = 9;
 const BOT_TOKEN = process.env.DISCORD_TOKEN;
 
+function Admin(member) {
+  return member.roles.cache.some(role =>
+    ['Owner', 'Web Wrestler'].includes(role.name)
+  );
+}
 
 const express = require('express');
 const app = express();
@@ -81,32 +86,17 @@ client.on('messageCreate', async (message) => {
 \`\`\`
 `);
   }
-
-//Reboot command
-client.on("messageCreate", async message => {
-  // Match the command
-  if (message.content.trim() === "!reboot") {
-    // Optional: check roles
-    const hasRole = message.member?.roles.cache.some(role =>
-      ["Owner", "Web Wrestler"].includes(role.name)
-    );
-    if (!hasRole) return message.reply("?? You don't have permission to do that.");
-
-    // Let user know it's starting
-    await message.reply("?? Rebooting the server now. Hold your f***ing horses...");
-
-    // Run the SSH command
-    exec("ssh serveradmin@yourserver.duckdns.org 'sudo /home/serveradmin/reboot-wrapper.sh'", (err, stdout, stderr) => {
-      if (err) {
-        console.error("Reboot failed:", stderr);
-        message.reply(`? Reboot failed: ${stderr || err.message}`);
-      } else {
-        message.reply("?? Server is rebooting. Try again in a minute.");
-      }
-    });
+  
+//playerlist
+  if (msg.content === '!playerslist') {
+  try {
+    const res = await rcon.send('list');
+    msg.reply(`🧍 Online players:\n\`\`\`\n${res}\n\`\`\``);
+  } catch (err) {
+    console.error(err);
+    msg.reply("Couldn't get player list. Kinda Tweaking rn.");
   }
-});
-
+}
 
   // --- RCON command ---
   if (content.startsWith('!rcon')) {
@@ -149,6 +139,76 @@ if (content === '!status') {
 
   console.log(`[STATUS] Checking ${host}:${port}`);
 }
+
+// === !backup ===
+  if (msg.content === '!backup') {
+    if (!hasPrivilegedRole(msg.member)) return msg.reply('Only the chosen ones can touch backups.');
+
+    msg.reply('Running world backup...');
+    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh'", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`[Backup Error]: ${stderr}`);
+        return msg.reply('Backup failed.');
+      }
+      msg.reply('Backup complete.');
+    });
+  }
+
+  // === !restart server ===
+  if (msg.content === '!restart server') {
+    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to restart the server.');
+
+    msg.reply('Backing up before restarting Minecraft server...');
+    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && systemctl stop minecraft-server.service && sleep 5 && systemctl start minecraft-server.service'", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`[Restart Server Error]: ${stderr}`);
+        return msg.reply('Failed to restart the Minecraft server.');
+      }
+      msg.reply('Minecraft server restarted.');
+    });
+  }
+
+  // === !restart machine ===
+  if (msg.content === '!restart machine') {
+    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to restart the machine.');
+
+    msg.reply('Backing up before rebooting server...');
+    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo reboot'", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`[Restart Machine Error]: ${stderr}`);
+        return msg.reply('Failed to reboot the server.');
+      }
+      msg.reply('Server reboot initiated.');
+    });
+  }
+
+  // === !shutdown ===
+  if (msg.content === '!shutdown') {
+    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to shut this thing down.');
+
+    msg.reply('Backing up before shutdown...');
+    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo shutdown now'", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`[Shutdown Error]: ${stderr}`);
+        return msg.reply('Failed to shutdown the server.');
+      }
+      msg.reply('Server is shutting down.');
+    });
+  }
+
+  // === !sleep ===
+  if (msg.content === '!sleep') {
+    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to put it to sleep.');
+
+    msg.reply('Backing up before suspend...');
+    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo systemctl suspend'", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`[Sleep Error]: ${stderr}`);
+        return msg.reply('Failed to suspend the server.');
+      }
+      msg.reply('Server has entered suspend mode.');
+    });
+  }
 
   // --- !whitelist list ---
   if (content === '!whitelist list') {
@@ -228,7 +288,7 @@ if (content === '!status') {
         let responses;
     if (message.author.id === JOSUE_ID) {
       responses = [
-        { text: "Anything for you oh might grandmaster Josue the great!", weight: 4 },
+        { text: "Anything for you oh mighty grandmaster Josue the great!", weight: 4 },
         { text: "You again? Always on some bullshit, stfu im starting it.", weight: 3 },
         { text: "BAAAH IM FUCKING TWEAKING, PLEASE KILL ME PLEEEASE", weight: 2 },
         { text: "Im gonna beat the shit out of dot. Your dog dot. Im gonna beat her to fucking pulp Josue", weight: 1 }
