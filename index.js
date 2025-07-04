@@ -76,25 +76,42 @@ client.on('messageCreate', async (message) => {
   }
 
   if (content === '!help') {
-    return message.reply(`📖 **Available Commands:**
+    return message.reply(` **Available Commands:**
 \`\`\`
 !startserver            Wakes up the Minecraft server via WOL
+!playerslist            Shows who’s currently online
 !status                 Checks if the server is online
 !test                   Tests if bot is working
-!whitelist add <user>   Add a user to the whitelist
 !whitelist list         List all whitelisted users
 \`\`\`
 `);
   }
+
+    if (content === '!ghelp') {
+    return message.reply(`
+Available Commands:
+!startserver      - Wakes up the Minecraft server via WOL
+!status           - Checks if the server is online
+!test             - Tests if bot is working
+!whitelist list   - List all whitelisted users
+!backup           - Backs up the Minecraft world
+!restart server   - Restarts the Minecraft server
+!restart machine  - Reboots the entire system
+!shutdown         - Shuts down the server
+!sleep            - Suspends the server after backing up
+!playerslist      - Shows who’s currently online
+
+`);
+  }
   
 //playerlist
-  if (msg.content === '!playerslist') {
+  if (message.content === '!playerslist') {
   try {
     const res = await rcon.send('list');
-    msg.reply(`🧍 Online players:\n\`\`\`\n${res}\n\`\`\``);
+    message.reply(`🧍 Online players:\n\`\`\`\n${res}\n\`\`\``);
   } catch (err) {
     console.error(err);
-    msg.reply("Couldn't get player list. Kinda Tweaking rn.");
+    message.reply("Couldn't get player list. Kinda Tweaking rn.");
   }
 }
 
@@ -141,72 +158,72 @@ if (content === '!status') {
 }
 
 // === !backup ===
-  if (msg.content === '!backup') {
-    if (!hasPrivilegedRole(msg.member)) return msg.reply('Only the chosen ones can touch backups.');
+  if (message.content === '!backup') {
+    if (!hasPrivilegedRole(message.member)) return message.reply('Only the chosen ones can touch backups.');
 
-    msg.reply('Running world backup...');
+    message.reply('Running world backup...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Backup Error]: ${stderr}`);
-        return msg.reply('Backup failed.');
+        return message.reply('Backup failed.');
       }
-      msg.reply('Backup complete.');
+      message.reply('Backup complete.');
     });
   }
 
   // === !restart server ===
-  if (msg.content === '!restart server') {
-    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to restart the server.');
+  if (message.content === '!restart server') {
+    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to restart the server.');
 
-    msg.reply('Backing up before restarting Minecraft server...');
+    message.reply('Backing up before restarting Minecraft server...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && systemctl stop minecraft-server.service && sleep 5 && systemctl start minecraft-server.service'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Restart Server Error]: ${stderr}`);
-        return msg.reply('Failed to restart the Minecraft server.');
+        return message.reply('Failed to restart the Minecraft server.');
       }
-      msg.reply('Minecraft server restarted.');
+      message.reply('Minecraft server restarted.');
     });
   }
 
   // === !restart machine ===
-  if (msg.content === '!restart machine') {
-    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to restart the machine.');
+  if (message.content === '!restart machine') {
+    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to restart the machine.');
 
-    msg.reply('Backing up before rebooting server...');
+    message.reply('Backing up before rebooting server...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo reboot'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Restart Machine Error]: ${stderr}`);
-        return msg.reply('Failed to reboot the server.');
+        return message.reply('Failed to reboot the server.');
       }
-      msg.reply('Server reboot initiated.');
+      message.reply('Server reboot initiated.');
     });
   }
 
   // === !shutdown ===
-  if (msg.content === '!shutdown') {
-    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to shut this thing down.');
+  if (message.content === '!shutdown') {
+    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to shut this thing down.');
 
-    msg.reply('Backing up before shutdown...');
+    message.reply('Backing up before shutdown...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo shutdown now'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Shutdown Error]: ${stderr}`);
-        return msg.reply('Failed to shutdown the server.');
+        return message.reply('Failed to shutdown the server.');
       }
-      msg.reply('Server is shutting down.');
+      message.reply('Server is shutting down.');
     });
   }
 
   // === !sleep ===
-  if (msg.content === '!sleep') {
-    if (!hasPrivilegedRole(msg.member)) return msg.reply('No perms to put it to sleep.');
+  if (message.content === '!sleep') {
+    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to put it to sleep.');
 
-    msg.reply('Backing up before suspend...');
+    message.reply('Backing up before suspend...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo systemctl suspend'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Sleep Error]: ${stderr}`);
-        return msg.reply('Failed to suspend the server.');
+        return message.reply('Failed to suspend the server.');
       }
-      msg.reply('Server has entered suspend mode.');
+      message.reply('Server has entered suspend mode.');
     });
   }
 
