@@ -36,7 +36,7 @@ const BOT_TOKEN = process.env.DISCORD_TOKEN;
 
 function Admin(member) {
   return member.roles.cache.some(role =>
-    ['Owner', 'Web Wrestler'].includes(role.name)
+    ['Owner', 'Web Wresteler'].includes(role.name)
   );
 }
 
