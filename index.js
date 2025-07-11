@@ -164,7 +164,7 @@ if (content === '!status') {
     if (!Admin(message.member)) return message.reply('Shutup');
 
     message.reply('Running world backup...');
-    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh'", (error, stdout, stderr) => {
+    exec("ssh executer@192.168.4.38 'sudo -u serveradmin /home/executer/backup-mc.sh'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Backup Error]: ${stderr}`);
         return message.reply('Backup failed.');
@@ -178,7 +178,7 @@ if (content === '!status') {
     if (!Admin(message.member)) return message.reply('No perms to restart the server.');
 
     message.reply('Backing up before restarting Minecraft server...');
-    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && systemctl stop minecraft-server.service && sleep 5 && systemctl start minecraft-server.service'", (error, stdout, stderr) => {
+    exec("ssh executer@192.168.4.38 'sudo -u serveradmin /home/executer/backup-mc.sh && sudo -u serveradmin systemctl stop minecraft-server.service && sleep 5 && sudo -u serveradmin systemctl start minecraft-server.service'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Restart Server Error]: ${stderr}`);
         return message.reply('Failed to restart the Minecraft server.');
@@ -192,7 +192,7 @@ if (content === '!status') {
     if (!Admin(message.member)) return message.reply('No perms to restart the machine.');
 
     message.reply('Backing up before rebooting server...');
-    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo reboot'", (error, stdout, stderr) => {
+    exec("ssh executer@192.168.4.38 'sudo -u serveradmin /home/executer/backup-mc.sh && sudo -u serveradmin reboot'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Restart Machine Error]: ${stderr}`);
         return message.reply('Failed to reboot the server.');
@@ -206,7 +206,7 @@ if (content === '!status') {
     if (!Admin(message.member)) return message.reply('No perms to shut this thing down.');
 
     message.reply('Backing up before shutdown...');
-    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo shutdown now'", (error, stdout, stderr) => {
+    exec("ssh executer@192.168.4.38 'sudo -u serveradmin /home/executer/backup-mc.sh && sudo -u serveradmin shutdown now'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Shutdown Error]: ${stderr}`);
         return message.reply('Failed to shutdown the server.');
@@ -220,7 +220,7 @@ if (content === '!status') {
     if (!Admin(message.member)) return message.reply('No perms to put it to sleep.');
 
     message.reply('Backing up before suspend...');
-    exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo systemctl suspend'", (error, stdout, stderr) => {
+    exec("ssh executer@192.168.4.38 'nohup bash -c \"sudo -u serveradmin /home/executer/backup-mc.sh && sudo -u serveradmin systemctl suspend\" > /dev/null 2>&1 &'", (error, stdout, stderr) => {
       if (error) {
         console.error(`[Sleep Error]: ${stderr}`);
         return message.reply('Failed to suspend the server.');
@@ -289,11 +289,11 @@ if (content === '!status') {
       message.channel.send("Hold your fucking horses, I'm starting the server already.");
 
       setTimeout(() => {
-        message.reply("Punk ass hoe.");
+        message.reply("I'll hit you with a rock.");
       }, 3000);
 
       setTimeout(() => {
-        message.channel.send("Making my job all HAAARD and shit.");
+        message.channel.send("https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.facebook.com%2Fkschongphotography1%2F&psig=AOvVaw3uHl0HuGg2pUSjxk_wt7GS&ust=1752283891621000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCPjasajUs44DFQAAAAAdAAAAABAE");
       }, 6000);
 
       return;
@@ -308,6 +308,14 @@ if (content === '!status') {
     if (message.author.id === JOSUE_ID) {
       responses = [
         { text: "Anything for you oh mighty grandmaster Josue the great!", weight: 4 },
+        { text: " ✅ WOL signal sent! The server should be waking up. Checking for server response.", weight: 5 },
+        { text: " ✅ Attempting to boot the server up! Checking for server response.", weight: 5 },
+        { text: " ✅ Server should be up soon. Checking for server response.", weight: 5 },
+        { text: " Type shit! Attempting to boot server now.", weight: 3 },
+        { text: " 🌚 THANK YOUU I LOVE BOOTING SERVERS! THAT'S MY ONE PURPOSE IN LIFE!!!", weight: 2 },
+        { text: " Hold on lemme boot that shit up!!", weight: 3 },
+        { text: " 🫃", weight: 1 },
+        { text: " Shut up dickhead.", weight: 1 },
         { text: "You again? Always on some bullshit, stfu im starting it.", weight: 3 },
         { text: "BAAAH IM FUCKING TWEAKING, PLEASE KILL ME PLEEEASE", weight: 2 },
         { text: "Im gonna beat the shit out of dot. Your dog dot. Im gonna beat her to fucking pulp Josue", weight: 1 }
@@ -320,6 +328,7 @@ if (content === '!status') {
         { text: " Type shit! Attempting to boot server now.", weight: 3 },
         { text: " 🌚 THANK YOUU I LOVE BOOTING SERVERS! THAT'S MY ONE PURPOSE IN LIFE!!!", weight: 2 },
         { text: " Hold on lemme boot that shit up!!", weight: 3 },
+        { text: "https://www.istockphoto.com/photos/hairy-old-man"},
         { text: " 🫃", weight: 1 },
         { text: " Shut up dickhead.", weight: 1 }
       ];
