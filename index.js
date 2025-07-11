@@ -107,7 +107,9 @@ Available Commands:
 //playerlist
   if (message.content === '!playerslist') {
   try {
+    const rcon = await Rcon.connect({ host: RCON_HOST, port: RCON_PORT, password: RCON_PASSWORD });
     const res = await rcon.send('list');
+    await rcon.end();
     message.reply(`🧍 Online players:\n\`\`\`\n${res}\n\`\`\``);
   } catch (err) {
     console.error(err);
@@ -159,7 +161,7 @@ if (content === '!status') {
 
 // === !backup ===
   if (message.content === '!backup') {
-    if (!hasPrivilegedRole(message.member)) return message.reply('Only the chosen ones can touch backups.');
+    if (!Admin(message.member)) return message.reply('Shutup');
 
     message.reply('Running world backup...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh'", (error, stdout, stderr) => {
@@ -173,7 +175,7 @@ if (content === '!status') {
 
   // === !restart server ===
   if (message.content === '!restart server') {
-    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to restart the server.');
+    if (!Admin(message.member)) return message.reply('No perms to restart the server.');
 
     message.reply('Backing up before restarting Minecraft server...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && systemctl stop minecraft-server.service && sleep 5 && systemctl start minecraft-server.service'", (error, stdout, stderr) => {
@@ -187,7 +189,7 @@ if (content === '!status') {
 
   // === !restart machine ===
   if (message.content === '!restart machine') {
-    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to restart the machine.');
+    if (!Admin(message.member)) return message.reply('No perms to restart the machine.');
 
     message.reply('Backing up before rebooting server...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo reboot'", (error, stdout, stderr) => {
@@ -201,7 +203,7 @@ if (content === '!status') {
 
   // === !shutdown ===
   if (message.content === '!shutdown') {
-    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to shut this thing down.');
+    if (!Admin(message.member)) return message.reply('No perms to shut this thing down.');
 
     message.reply('Backing up before shutdown...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo shutdown now'", (error, stdout, stderr) => {
@@ -215,7 +217,7 @@ if (content === '!status') {
 
   // === !sleep ===
   if (message.content === '!sleep') {
-    if (!hasPrivilegedRole(message.member)) return message.reply('No perms to put it to sleep.');
+    if (!Admin(message.member)) return message.reply('No perms to put it to sleep.');
 
     message.reply('Backing up before suspend...');
     exec("ssh executer@192.168.4.38 '/home/executer/backup-mc.sh && sudo systemctl suspend'", (error, stdout, stderr) => {
