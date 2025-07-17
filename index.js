@@ -68,7 +68,7 @@ const responses = {
     { text: "Server suspending, wake me up later.", weight: 3 },
     { text: "Server successfully put to sleep.", weight: 4 },
     { text: "Jesus you were playing for a fucking while.", weight: 2},
-    { text: "Server successfully put tucked into bed.", weight: 3 },
+    { text: "Server successfully tucked into bed.", weight: 3 },
     { text: "Going to sleep now, night night.", weight: 2 },
     { text: "Hell yeah, gonna go watch reels and sleep now.", weight: 2 },
     { text: "Server sleeping, go fuck off now.", weight: 1 },
