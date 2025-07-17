@@ -70,7 +70,7 @@ const responses = {
     { text: "Jesus you were playing for a fucking while.", weight: 2},
     { text: "Server successfully tucked into bed.", weight: 3 },
     { text: "Going to sleep now, night night.", weight: 2 },
-    { text: "Hell yeah, gonna go watch reels and sleep now.", weight: 2 },
+    { text: ":P", weight: 2 },
     { text: "Server sleeping, go fuck off now.", weight: 1 },
   ],
   status: {
@@ -302,14 +302,15 @@ if (content === '!status') {
     if (!User(message.member)) return message.reply('No perms to put it to sleep.');
 
     message.reply('Backing up before suspend...');
-    exec("ssh executer@192.168.4.38 'nohup bash -c \"sudo -u serveradmin /home/executer/backup-mc.sh && sudo -u serveradmin systemctl suspend\" > /dev/null 2>&1 &'", (error, stdout, stderr) => {
-      if (error) {
-        console.error(`[Sleep Error]: ${stderr}`);
-        return message.reply('Failed to suspend the server.');
-      }
-      const reply = getRandomResponse(responses.sleep);
-      message.channel.send(reply.text);
-    });
+exec("ssh executer@192.168.4.38 'sudo /usr/bin/systemctl suspend'", (error, stdout, stderr) => {
+  if (error) {
+    console.error(`[Sleep Error]: ${stderr}`);
+    return message.reply('Failed to suspend the server.');
+  }
+  const reply = getRandomResponse(responses.sleep);
+  message.channel.send(reply.text);
+});
+
   }
 
   // --- !whitelist list ---
@@ -374,7 +375,7 @@ if (content === '!status') {
         message.reply("I'll hit you with a rock.");
       }, 3000);
       setTimeout(() => {
-        message.channel.send("https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.facebook.com%2Fkschongphotography1%2F&psig=AOvVaw3uHl0HuGg2pUSjxk_wt7GS&ust=1752283891621000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCPjasajUs44DFQAAAAAdAAAAABAE");
+        message.channel.send("Im trying my best.");
       }, 6000);
       return;
     }
