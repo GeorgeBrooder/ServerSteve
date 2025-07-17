@@ -219,21 +219,21 @@ if (content === '!status') {
   socket.on('connect', () => {
     console.log('[STATUS] Server is ONLINE');
     const reply = getRandomResponse(responses.status.on);
-    message.channel.send(reply);    
+    message.channel.send(reply.text);    
     socket.destroy();
   });
 
   socket.on('timeout', () => {
     console.log('[STATUS] Connection TIMED OUT');
     const reply = getRandomResponse(responses.status.timeout);
-    message.channel.send(reply);   
+    message.channel.send(reply.text);   
     socket.destroy();
   });
 
   socket.on('error', (err) => {
     console.log('[STATUS] Connection ERROR:', err.message);
     const reply = getRandomResponse(responses.status.off);
-    message.channel.send(reply);   
+    message.channel.send(reply.text);   
     console.error(`[STATUS] Connection error:`, err);
   });
 
@@ -308,7 +308,7 @@ if (content === '!status') {
         return message.reply('Failed to suspend the server.');
       }
       const reply = getRandomResponse(responses.sleep);
-      message.channel.send(reply);
+      message.channel.send(reply.text);
     });
   }
 
@@ -410,7 +410,7 @@ if (content === '!status') {
           replies = [...responses.startserver];
         }
         const reply = getRandomResponse(replies);
-        message.channel.send(reply);
+        message.channel.send(reply.text);
 
         // Server polling logic (unchanged)
         let elapsedTime = 0;
