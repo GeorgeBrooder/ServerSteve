@@ -38,13 +38,13 @@ const BOT_TOKEN = process.env.DISCORD_TOKEN;
 
 function Admin(member) {
   return member.roles.cache.some(role =>
-    ['Owner', 'Web Wresteler'].includes(role.name)
+    ['Trout', 'Web Wresteler'].includes(role.name)
   );
 }
 
 function User(member) {
   return member.roles.cache.some(role =>
-    ['Minecrapper','Owner', 'Web Wresteler'].includes(role.name)
+    ['Minecrapper','Trout', 'Web Wresteler'].includes(role.name)
   );
 }
 
@@ -210,27 +210,36 @@ Available Commands:
 
   // --- !status ---
 if (content === '!status') {
+  console.log('[STATUS] !status command received');
   const host = RCON_HOST;
   const port = 25565;
   const socket = new net.Socket();
   socket.setTimeout(2000);
 
   socket.on('connect', () => {
+    console.log('[STATUS] Server is ONLINE');
     const reply = getRandomResponse(responses.status.on);
     message.channel.send(reply);    
     socket.destroy();
-  }).on('timeout', () => {
+  });
+
+  socket.on('timeout', () => {
+    console.log('[STATUS] Connection TIMED OUT');
     const reply = getRandomResponse(responses.status.timeout);
     message.channel.send(reply);   
     socket.destroy();
-  }).on('error', (err) => {
+  });
+
+  socket.on('error', (err) => {
+    console.log('[STATUS] Connection ERROR:', err.message);
     const reply = getRandomResponse(responses.status.off);
     message.channel.send(reply);   
     console.error(`[STATUS] Connection error:`, err);
-  }).connect(port, host);
+  });
 
-  console.log(`[STATUS] Checking ${host}:${port}`);
+  socket.connect(port, host);
 }
+
 
 // === !backup ===
   if (message.content === '!backup') {
@@ -433,6 +442,3 @@ if (content === '!status') {
       });
   }
 });
-
-// --- Start bot ---
-client.login(BOT_TOKEN);
