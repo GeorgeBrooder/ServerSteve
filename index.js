@@ -30,7 +30,9 @@ const RCON_PORT = 25575;
 const RCON_PASSWORD = process.env.RCON_PASSWORD;
 const MAC_ADDRESS = '4c:cc:6a:fc:83:b0';
 const BROADCAST_IP = '192.168.7.255';
+const RONAN_ID = "227121659121893378";
 const JOSUE_ID = "737173833257189447";
+const GABE_ID = "283318534426329088";
 const WOL_PORT = 9;
 const BOT_TOKEN = process.env.DISCORD_TOKEN;
 
@@ -38,6 +40,74 @@ function Admin(member) {
   return member.roles.cache.some(role =>
     ['Owner', 'Web Wresteler'].includes(role.name)
   );
+}
+
+function User(member) {
+  return member.roles.cache.some(role =>
+    ['Minecrapper','Owner', 'Web Wresteler'].includes(role.name)
+  );
+}
+
+const responses = {
+  startserver: [
+    { text: "Booting up! Hold on...", weight: 4 },
+    { text: "The server's waking up. Go grab a drink.", weight: 2 },
+    { text: " ✅ WOL signal sent! The server should be waking up. Checking for server response.", weight: 4 },
+    { text: " ✅ Attempting to boot the server up! Checking for server response.", weight: 4 },
+    { text: " ✅ Server should be up soon. Checking for server response.", weight: 4 },
+    { text: " Type shit! Attempting to boot server now.", weight: 3 },
+    { text: " 🌚 THANK YOUU I LOVE BOOTING SERVERS! THAT'S MY ONE PURPOSE IN LIFE!!!", weight: 2 },
+    { text: " Hold on lemme boot that shit up!!", weight: 3 },
+    { text: "k.", weight: 2 },
+    { text: "https://www.istockphoto.com/photos/hairy-old-man", weight: 1},
+    { text: " 🫃", weight: 1 },
+    { text: " Shut up dickhead.", weight: 1 }
+  ],
+  sleep: [
+    { text: "Goin tf to bed, gn.", weight: 2 },
+    { text: "Server suspending, wake me up later.", weight: 3 },
+    { text: "Server successfully put to sleep.", weight: 4 },
+    { text: "Jesus you were playing for a fucking while.", weight: 2},
+    { text: "Server successfully put tucked into bed.", weight: 3 },
+    { text: "Going to sleep now, night night.", weight: 2 },
+    { text: "Hell yeah, gonna go watch reels and sleep now.", weight: 2 },
+    { text: "Server sleeping, go fuck off now.", weight: 1 },
+  ],
+  status: {
+    on: [
+      { text: "It's up and running, you needy shit.", weight: 2 },
+      { text: "Online, as always. What did you expect?", weight: 2 },
+      { text: "Blah Blah Blah, its up. Fuck off.", weight: 1},
+      { text: "Server's alive and so am I. For now.", weight: 3 },
+      { text: "🥶 Server is ONLINE and reachable.", weight: 4},
+    ],
+    timeout: [
+      { text: "😬 It timed out, dont know if its up ngl. ", weight: 4 },
+      { text: "Took too long, gave up, idk.", weight: 3 },
+      { text: "It timed out, gonna go jerk off or something.", weight: 1},
+      { text: "Fuck off, I dont know.", weight: 2},
+      { text: "Dont know lil bro, how bout you try again.", weight: 2 }
+    ],
+    off: [
+      { text: "🥵 Server appears to be OFFLINE.", weight: 4 },
+      { text: '"!status" 🤓, shits off rn asshole.', weight: 2 },
+      { text: "Dead as hell. Go touch grass.", weight: 3 },
+      // { sequence: [
+      // { text: "FUCK OFF!!!!", delay: 1000 },
+      // { text: "SERVER IS FUCKING OFF AND IM TRYING TO REST YOU DICK HEAD!", delay: 1500 },
+      // { text: "GO PLAY SOME OTHER FUCKING GAME, DO YOU REALLY THINK MINECRAFT IS ALL THERE IS YOU SACK OF SHIT?!?", delay: 2000 },
+      // { text: "Sorry that was harsh.", delay: 1500 }
+      // ],weight: 1},
+      { text: "Server's off. Try turning it on, genius.", weight: 3 }
+    ]
+  }
+};
+
+
+
+function getRandomResponse(responses) {
+  const weightedPool = responses.flatMap(r => Array(r.weight || 1).fill(r));
+  return weightedPool[Math.floor(Math.random() * weightedPool.length)];
 }
 
 const express = require('express');
@@ -77,13 +147,13 @@ client.on('messageCreate', async (message) => {
 
   if (content === '!help') {
     return message.reply(` **Available Commands:**
-\`\`\`
+
 !startserver            Wakes up the Minecraft server via WOL
+!sleep                  Puts the Server to sleep
 !playerslist            Shows who’s currently online
 !status                 Checks if the server is online
 !test                   Tests if bot is working
 !whitelist list         List all whitelisted users
-\`\`\`
 `);
   }
 
@@ -146,13 +216,16 @@ if (content === '!status') {
   socket.setTimeout(2000);
 
   socket.on('connect', () => {
-    message.channel.send('🥶 Server is ONLINE and reachable.');
+    const reply = getRandomResponse(responses.status.on);
+    message.channel.send(reply);    
     socket.destroy();
   }).on('timeout', () => {
-    message.channel.send('😬 It timed out, dont know if its up ngl. ');
+    const reply = getRandomResponse(responses.status.timeout);
+    message.channel.send(reply);   
     socket.destroy();
   }).on('error', (err) => {
-    message.channel.send('🥵 Server appears to be OFFLINE.');
+    const reply = getRandomResponse(responses.status.off);
+    message.channel.send(reply);   
     console.error(`[STATUS] Connection error:`, err);
   }).connect(port, host);
 
@@ -217,7 +290,7 @@ if (content === '!status') {
 
   // === !sleep ===
   if (message.content === '!sleep') {
-    if (!Admin(message.member)) return message.reply('No perms to put it to sleep.');
+    if (!User(message.member)) return message.reply('No perms to put it to sleep.');
 
     message.reply('Backing up before suspend...');
     exec("ssh executer@192.168.4.38 'nohup bash -c \"sudo -u serveradmin /home/executer/backup-mc.sh && sudo -u serveradmin systemctl suspend\" > /dev/null 2>&1 &'", (error, stdout, stderr) => {
@@ -225,7 +298,8 @@ if (content === '!status') {
         console.error(`[Sleep Error]: ${stderr}`);
         return message.reply('Failed to suspend the server.');
       }
-      message.reply('Server has entered suspend mode.');
+      const reply = getRandomResponse(responses.sleep);
+      message.channel.send(reply);
     });
   }
 
@@ -283,19 +357,16 @@ if (content === '!status') {
     }
   }
 
-  // --- !startserver ---
-  if (content === '!startserver') {
+ if (content === '!startserver') {
+    // Cooldown logic
     if (cooldown) {
       message.channel.send("Hold your fucking horses, I'm starting the server already.");
-
       setTimeout(() => {
         message.reply("I'll hit you with a rock.");
       }, 3000);
-
       setTimeout(() => {
         message.channel.send("https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.facebook.com%2Fkschongphotography1%2F&psig=AOvVaw3uHl0HuGg2pUSjxk_wt7GS&ust=1752283891621000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCPjasajUs44DFQAAAAAdAAAAABAE");
       }, 6000);
-
       return;
     }
 
@@ -304,43 +375,37 @@ if (content === '!status') {
 
     wol(MAC_ADDRESS, { address: BROADCAST_IP, port: WOL_PORT })
       .then(() => {
-        let responses;
-    if (message.author.id === JOSUE_ID) {
-      responses = [
-        { text: "Anything for you oh mighty grandmaster Josue the great!", weight: 4 },
-        { text: " ✅ WOL signal sent! The server should be waking up. Checking for server response.", weight: 5 },
-        { text: " ✅ Attempting to boot the server up! Checking for server response.", weight: 5 },
-        { text: " ✅ Server should be up soon. Checking for server response.", weight: 5 },
-        { text: " Type shit! Attempting to boot server now.", weight: 3 },
-        { text: " 🌚 THANK YOUU I LOVE BOOTING SERVERS! THAT'S MY ONE PURPOSE IN LIFE!!!", weight: 2 },
-        { text: " Hold on lemme boot that shit up!!", weight: 3 },
-        { text: " 🫃", weight: 1 },
-        { text: " Shut up dickhead.", weight: 1 },
-        { text: "You again? Always on some bullshit, stfu im starting it.", weight: 3 },
-        { text: "BAAAH IM FUCKING TWEAKING, PLEASE KILL ME PLEEEASE", weight: 2 },
-        { text: "Im gonna beat the shit out of dot. Your dog dot. Im gonna beat her to fucking pulp Josue", weight: 1 }
-      ];
-    } else {
-      responses = [
-        { text: " ✅ WOL signal sent! The server should be waking up. Checking for server response.", weight: 5 },
-        { text: " ✅ Attempting to boot the server up! Checking for server response.", weight: 5 },
-        { text: " ✅ Server should be up soon. Checking for server response.", weight: 5 },
-        { text: " Type shit! Attempting to boot server now.", weight: 3 },
-        { text: " 🌚 THANK YOUU I LOVE BOOTING SERVERS! THAT'S MY ONE PURPOSE IN LIFE!!!", weight: 2 },
-        { text: " Hold on lemme boot that shit up!!", weight: 3 },
-        { text: "https://www.istockphoto.com/photos/hairy-old-man"},
-        { text: " 🫃", weight: 1 },
-        { text: " Shut up dickhead.", weight: 1 }
-      ];
-    }
-        const weightedPool = responses.flatMap(r => Array(r.weight).fill(r.text));
-        const randomReply = weightedPool[Math.floor(Math.random() * weightedPool.length)];
+        let replies;
+        if (message.author.id === JOSUE_ID) {
+          replies = [
+            { text: "Anything for you oh mighty grandmaster Josue the great!", weight: 4 },
+            ...responses.startserver,
+            { text: "You again? Always on some bullshit, stfu im starting it.", weight: 3 },
+            { text: "BAAAH IM FUCKING TWEAKING, PLEASE KILL ME PLEEEASE", weight: 2 },
+            { text: "Im gonna beat the shit out of dot. Your dog scott. Im gonna beat her to fucking pulp Josue", weight: 1 }
+          ];
+          } else if (message.author.id === RONAN_ID) {
+          replies = [
+          { text: "Hi Ronan", weight: 2 },
+         ...responses.startserver,
+         { text: "Im farting on your dog right now Ronan, Otto is all smelly n shit.", weight: 2 }
+         ];
+        } else if (message.author.id === GABE_ID) {
+          replies = [
+          { text: "Starting the server but oh my god do you fucking smell gabe, go shower dick.", weight: 2 },
+         ...responses.startserver,
+         { text: "Im gonna start this server then smoke all your weed gabe.", weight: 2 }
+         ];
+        }
+        else {
+          replies = [...responses.startserver];
+        }
+        const reply = getRandomResponse(replies);
+        message.channel.send(reply);
 
-        message.channel.send(randomReply);
-
+        // Server polling logic (unchanged)
         let elapsedTime = 0;
         const maxTime = 180;
-
         const interval = setInterval(() => {
           const socket = new net.Socket();
           socket.setTimeout(1000);
